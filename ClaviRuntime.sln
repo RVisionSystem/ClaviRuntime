@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClaviRuntime", "ClaviRuntime\ClaviRuntime.csproj", "{B9AD5965-873F-46F8-814E-8C3B460C6E27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InferenceConsole", "InferenceConsole\InferenceConsole.csproj", "{BCE5E0C8-6E56-4C58-9546-6E09EB80AE60}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B9AD5965-873F-46F8-814E-8C3B460C6E27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9AD5965-873F-46F8-814E-8C3B460C6E27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9AD5965-873F-46F8-814E-8C3B460C6E27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9AD5965-873F-46F8-814E-8C3B460C6E27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCE5E0C8-6E56-4C58-9546-6E09EB80AE60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCE5E0C8-6E56-4C58-9546-6E09EB80AE60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCE5E0C8-6E56-4C58-9546-6E09EB80AE60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCE5E0C8-6E56-4C58-9546-6E09EB80AE60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3476364F-D551-4C7D-8EA6-9B55B566F0F8}
+	EndGlobalSection
+EndGlobal
