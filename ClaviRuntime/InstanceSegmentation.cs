@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ClaviRuntime
 {
-    public class InstanceSegmentation
+    public class InstanceSegmentation : IDisposable
     {
         private InferenceSession? sess;
         public Bitmap? imageResult;
@@ -46,12 +46,7 @@ namespace ClaviRuntime
             OpenCvSharp.Size imgSize = new OpenCvSharp.Size(inputW, inputH);
             Mat result = image.Clone();
 
-            //Label file
-            //var label = File.ReadLines("C:/Users/Beck/Model/corrosion/corrosion.txt");
-            //var labelList = GetLabel(class_name).ToArray();
-            //var labelList = label.ToArray();
             var pallete = GenPalette(lab_dict.Count);
-            //var pallete = GenPalette(labelList.Length);
 
             Mat imageFloat = image.Resize(imgSize);
             imageFloat = DataPreprocessing(imageFloat);
