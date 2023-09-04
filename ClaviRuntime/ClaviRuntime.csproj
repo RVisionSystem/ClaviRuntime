@@ -5,6 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>1.0.3</Version>
+    <Title>CLAVIRuntime</Title>
+    <Authors>Ryowa Development Team</Authors>
+    <Company>Ryowa Co., Ltd.</Company>
+    <Product>CLAVI Runtime for Windows</Product>
+    <Description>Provides a libraries for inferencing all functionality of CLAVI AI model.</Description>
   </PropertyGroup>
 
   <ItemGroup>
