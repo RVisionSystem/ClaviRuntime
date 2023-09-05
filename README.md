@@ -13,7 +13,7 @@ This repository offers a C# library for CLAVIRuntime, enabling users to leverage
 
 See .NET Documentation
 
-### How to install and manage CLAVIRuntime NuGet package in Visual Studio (locally)<br>
+## How to install and manage CLAVIRuntime NuGet package in Visual Studio (locally)<br>
 1. Download [ClaviRuntime.1.0.3.nupkg](https://github.com/RVisionSystem/ClaviRuntime/blob/master/ClaviRuntime.1.0.3.nupkg).
 2. Create a new folder named ```CLAVIRuntime``` in ```Program Files (x86)\Microsoft SDKs\NuGetPackages```, create a subfolder within it, and name the subfolder with downloaded package version ```1.0.3```, paste file ```ClaviRuntime.1.0.3.nupkg```within the folder.<br>
    The hierarchical package folder tree has the following structure:
