@@ -45,7 +45,7 @@ This repository offers a C# library for CLAVIRuntime, enabling users to leverage
 ```
 #### Creating the inference method
 ```csharp
-  string modelPath = "<Path to your AI model>";
+  string modelPath = "<Path to your model file>";
   string imagePath = "<Path to your image file>";
 
   var classify = new ImageClassification();
