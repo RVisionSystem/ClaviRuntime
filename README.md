@@ -38,26 +38,26 @@ This repository offers a C# library for CLAVIRuntime, enabling users to leverage
 
 ## Example
 #### Importing the library
-```
-using ClaviRuntime;
+```csharp
+   using ClaviRuntime;
 ```
 #### Creating the inference method
 ```csharp
-     string modelPath = "<Path to your AI model>";
-     string imagePath = "<Path to your image file>";
+  string modelPath = "<Path to your AI model>";
+  string imagePath = "<Path to your image file>";
 
-     var classify = new ImageClassification();
-     classify.InitializeModel(modelPath);
-     classify.Process(imagePath);
-     List<ImageClassificationResults> results = classify.resultsList;
-     if (results.Count != 0)
-     {
-         foreach (var r in results)
-         {
-             Console.WriteLine(r.Name);
-             Console.WriteLine(r.Score);
-         }
-     }
+  var classify = new ImageClassification();
+  classify.InitializeModel(modelPath);
+  classify.Process(imagePath);
+  List<ImageClassificationResults> results = classify.resultsList;
+  if (results.Count != 0)
+  {
+      foreach (var r in results)
+      {
+          Console.WriteLine(r.Name);
+          Console.WriteLine(r.Score);
+      }
+  }
 ```
 Find more examples see. 
 
