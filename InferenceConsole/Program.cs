@@ -11,22 +11,22 @@ class Program
     static void Main(string[] args)
     {
         // Anomaly
-        /*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\dataset\\OK\\OK_0000_20230404071725.jpg";
-                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\model\\anomaly_cucumber.onnx";
+        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\dataset\\No-crop\\test03.png";
+        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\model\\anoCLS.onnx";
 
-                var anomalyDetection = new Anomaly();
-                anomalyDetection.InitializeModel(modelPath);
-                Bitmap resultImage = anomalyDetection.Process(imagePath);
-                List<AnomalyResults>? results = anomalyDetection.resultsList;
+        var anomaly = new Anomaly();
+        anomaly.InitializeModel(modelPath);
+        anomaly.Process(imagePath);
+        List<AnomalyResults>? results = anomaly.resultsList;
 
-                foreach (var r in results)
-                {
-                    Console.WriteLine(r.Score);
-                    Bitmap res = r.Heatmap;
-                    res.Save("C:\\Users\\Beck\\Desktop\\original.jpg");
-                }
+        foreach (var r in results)
+        {
+            Console.WriteLine("This image has a " +  r.Score + "% abnormality.");
+            Bitmap res = r.Heatmap;
+            res.Save("C:\\Users\\Beck\\Desktop\\original.jpg");
+        }
 
-                Console.WriteLine("Done");*/
+        Console.WriteLine("Done");
 
         //Instance Segmentation
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_instance\\IMG-0946.jpg";
@@ -51,22 +51,22 @@ class Program
                 Console.WriteLine("Done");*/
 
         //Image Classification
-        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_class\\IMG-0922.jpg";
-        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\original\\model\\Classification_epoch5000.onnx";
-        Mat inputImg = Cv2.ImRead(imagePath);
+        /*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\image\\ASTM-F2870\\ASTM-F2870_30.JPG";
+                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\model\\20230905.onnx";
+                Mat inputImg = Cv2.ImRead(imagePath);
 
-        var classify = new ImageClassification();
-        classify.InitializeModel(modelPath);
-        classify.Process(imagePath);
-        List<ImageClassificationResults> results = classify.resultsList;
-        if (results.Count != 0)
-        {
-            foreach (var r in results)
-            {
-                Console.WriteLine(r.Name);
-                Console.WriteLine(r.Score);
-            }
-        }
+                var classify = new ImageClassification();
+                classify.InitializeModel(modelPath);
+                classify.Process(imagePath);
+                List<ImageClassificationResults> results = classify.resultsList;
+                if (results.Count != 0)
+                {
+                    foreach (var r in results)
+                    {
+                        Console.WriteLine(r.Name);
+                        Console.WriteLine(r.Score);
+                    }
+                }*/
 
         //Object Detection
         /*string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";

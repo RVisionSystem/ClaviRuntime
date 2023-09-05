@@ -9,19 +9,13 @@ namespace ClaviRuntime
 {
     public class AnomalyResults
     {
-        private int index;
-        private string label;
         private float score;
         private Bitmap heatmap;
-
-        public AnomalyResults(float score, Bitmap heatmap) //int index, string area, 
+        public AnomalyResults(float score, Bitmap heatmap)
         {
-            /*this.index = index;
-            this.label = area;*/
             this.score = score;
             this.heatmap = heatmap;
         }
-
         public float Score
         {
             get { return score; }

@@ -15,7 +15,6 @@ namespace ClaviRuntime
     public class Anomaly : IDisposable
     {
         private InferenceSession? sess;
-        public Bitmap? imageResult;
         public List<AnomalyResults>? resultsList;
         public void InitializeModel(string modelPath)
         {
@@ -25,10 +24,11 @@ namespace ClaviRuntime
             sess = new InferenceSession(modelPath, option);
         }
 
-        public Bitmap Process(string inputPath, double opacity = 0.6)
+        public void Process(string inputPath, double opacity = 0.6)
         {
             resultsList = new List<AnomalyResults>();
             var image = Cv2.ImRead(inputPath);
+            Bitmap hmResult;
 
             try
             {
@@ -43,11 +43,6 @@ namespace ClaviRuntime
                 var th_dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(th);
                 string modelType = customMeta.ToArray()[2].Value;
 
-                //var labellist = GetLabel(customMeta);
-
-                //var th_set = GetAdaptiveThreshold(customMeta);
-                // th_set = [image_threshold, pixel_threshold, min, max]
-
                 OpenCvSharp.Size imgSize = new OpenCvSharp.Size(dim[3], dim[2]);
 
                 var data = DataPreprocessing(image);
@@ -56,8 +51,6 @@ namespace ClaviRuntime
 
                 var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor(inputName, input) };
 
-                Mat result_anomaly = image.Clone();
-                result_anomaly = result_anomaly.Resize(imgSize);
                 using (var results = sess.Run(inputs))
                 {
                     var resultsArray = results.ToArray();
@@ -66,72 +59,43 @@ namespace ClaviRuntime
                     var score_value = resultsArray[1].AsEnumerable<float>().ToArray();
                     var score_dim = resultsArray[1].AsTensor<float>().Dimensions.ToArray();
 
-                    //var adaptive_threshold = th_set[0];
                     float adaptive_threshold = float.Parse(th_dict["image_threshold"]);
                     float pix_threshold = float.Parse(th_dict["pixel_threshold"]);
                     float min = float.Parse(th_dict["min"]);
                     float max = float.Parse(th_dict["max"]);
 
-                    //Console.WriteLine("Min: " + min + "\n" + "Max: " + max + "\n" + "Min Moto: " + min_ori + "\n" + "Max Moto: " + max_ori);
-
                     var normalizeMap = map_value.Select(x => ((x - min) / (max - min)) * 255).ToArray();
                     var normalizeMap_ori = map_value.Select(x => ((x - min) / (max - min)) * 255).ToArray();
 
                     double image_confidence = ((score_value[0] - adaptive_threshold) / (max - min)) + 0.5;
-
-
                     double pixel_confidence = ((score_value[0] - pix_threshold) / (max - min)) + 0.5;
 
-                    if (image_confidence > 1)
+                    double confidence = ((score_value[0] - adaptive_threshold) / (max - min)) + 0.5;
+
+                    // To bound the confident to be in 0-1. 
+                    if (confidence > 1)
                     {
-                        image_confidence = 1;
+                        confidence = 1;
                     }
-                    else if (image_confidence < 0)
+                    else if (confidence < 0)
                     {
-                        image_confidence = 0;
+                        confidence = 0;
                     }
 
                     var heatMap = GetHeatmap(map_value, map_dim, normalizeMap_ori);
                     Cv2.ApplyColorMap(heatMap, heatMap, ColormapTypes.Jet);
-                    Cv2.AddWeighted(result_anomaly, opacity, heatMap, 1 - opacity, 0, heatMap);
                     OpenCvSharp.Size originalSize = new OpenCvSharp.Size(image.Width, image.Height);
                     Mat heatMap_resize = heatMap.Resize(originalSize);
-
-                    Bitmap hmResult;
+                    Cv2.AddWeighted(image, opacity, heatMap_resize, 1 - opacity, 0, heatMap_resize);
 
                     using (var ms = heatMap_resize.ToMemoryStream())
                     {
                         hmResult = (Bitmap)Image.FromStream(ms);
                     }
 
-                    double confidence = ((score_value[0] - adaptive_threshold) / (max - min)) + 0.5;
-                    Console.WriteLine("Confidence: " + confidence);
-                    resultsList.Add(new AnomalyResults((float)confidence, hmResult));
-
-                    var result_mask = GetResultMask(map_value, map_dim, score_value[0]);
-                    
-                    var gray = new Mat();
-                    Cv2.CvtColor(result_mask, gray, ColorConversionCodes.BGR2GRAY);
-                    OpenCvSharp.Point[][] contours;
-                    OpenCvSharp.HierarchyIndex[] hindex;
-                    Cv2.FindContours(gray, out contours, out hindex, RetrievalModes.CComp, ContourApproximationModes.ApproxNone);
-                    Cv2.DrawContours(result_anomaly, contours, -1, new Scalar(0, 0, 255), 2);
-                    //OpenCvSharp.Size originalSize = new OpenCvSharp.Size(image.Width, image.Height);
-                    Mat outputImg_resize = result_anomaly.Resize(originalSize);
-                    //Cv2.ImShow("Predicted Result", outputImg_resize);
-                    using (var ms = outputImg_resize.ToMemoryStream())
-                    {
-                        imageResult = (Bitmap)System.Drawing.Image.FromStream(ms);
-                    }
-
-                    //resultsList.Add(new AnomalyResults((float)image_confidence, hmResult));
+                    resultsList.Add(new AnomalyResults((float)confidence * 100, hmResult));
 
                 }
-
-                /*using (var ms = heatMap.ToMemoryStream())
-                {
-                    imageResult = (Bitmap)System.Drawing.Image.FromStream(ms);
-                }*/
             }
             catch (Exception e)
             {
@@ -139,11 +103,9 @@ namespace ClaviRuntime
                 Console.WriteLine(e.Message);
                 using (var ms = image.ToMemoryStream())
                 {
-                    imageResult = (Bitmap)Image.FromStream(ms);
+                    hmResult = (Bitmap)Image.FromStream(ms);
                 }
             }
-
-            return imageResult;
         }
 
         public List<string> UseJsonTextReaderInNewtonsoftJson(string json)
