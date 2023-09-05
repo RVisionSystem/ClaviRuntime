@@ -2,11 +2,6 @@
 using Microsoft.ML.OnnxRuntime;
 using Newtonsoft.Json;
 using OpenCvSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ClaviRuntime
 {
@@ -38,7 +33,6 @@ namespace ClaviRuntime
                 string lab = customMeta.ToArray()[0].Value;
                 var lab_dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(lab);
 
-                //inputW = 224; inputH = 224;
                 Size imgSize = new Size(dims[3], dims[2]);
 
                 Mat imageFloat = image.Resize(imgSize);
@@ -56,9 +50,8 @@ namespace ClaviRuntime
                     var pred_dim = resultsArray[0].AsTensor<float>().Dimensions.ToArray();
                     float maxValue = pred_value.Max();
                     int maxIndex = pred_value.ToList().IndexOf(maxValue);
-                    //var secondMax = pred_value.OrderByDescending(r => r).Skip(1).FirstOrDefault();
 
-                    resultsList.Add(new ImageClassificationResults(maxIndex.ToString(), lab_dict[maxIndex.ToString()], pred_value[maxIndex]));
+                    resultsList.Add(new ImageClassificationResults(lab_dict[maxIndex.ToString()], pred_value[maxIndex]));
                 }
             }
             catch (Exception e)
@@ -95,26 +88,6 @@ namespace ClaviRuntime
             }
             return array;
         }
-
-
-        static float[] ImageTensor(string imagePath)
-        {
-            var tensorData = new List<float>();
-            using (var inputFile = new StreamReader(imagePath))
-            {
-                inputFile.ReadLine();
-                string[] dataStr = inputFile.ReadLine().Split(new char[] { ',', '[', ']' }, StringSplitOptions.RemoveEmptyEntries);
-
-                for (int i = 0; i < dataStr.Length; i++)
-                {
-                    tensorData.Add(Single.Parse(dataStr[i]));
-                }
-            }
-
-            return tensorData.ToArray();
-
-        }
-
         public void Dispose()
         {
             sess?.Dispose();

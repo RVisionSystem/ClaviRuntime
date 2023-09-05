@@ -8,19 +8,12 @@ namespace ClaviRuntime
 {
     public class ImageClassificationResults
     {
-        private string id;
         private string name;
         private float score;
-        public ImageClassificationResults(string id, string name, float score)
+        public ImageClassificationResults(string name, float score)
         {
-            this.id = id;
             this.name = name;
             this.score = score;
-        }
-        public string Id
-        {
-            get { return id; }
-            set { id = value; }
         }
         public string Name
         {
