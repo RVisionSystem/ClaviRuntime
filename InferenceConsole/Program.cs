@@ -11,22 +11,22 @@ class Program
     static void Main(string[] args)
     {
         // Anomaly
-        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\dataset\\No-crop\\test03.png";
-        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\model\\anoCLS.onnx";
+        /*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\dataset\\No-crop\\test03.png";
+                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\anomaly\\model\\anoCLS.onnx";
 
-        var anomaly = new Anomaly();
-        anomaly.InitializeModel(modelPath);
-        anomaly.Process(imagePath);
-        List<AnomalyResults>? results = anomaly.resultsList;
+                var anomaly = new Anomaly();
+                anomaly.InitializeModel(modelPath);
+                anomaly.Process(imagePath);
+                List<AnomalyResults>? results = anomaly.resultsList;
 
-        foreach (var r in results)
-        {
-            Console.WriteLine("This image has a " +  r.Score + "% abnormality.");
-            Bitmap res = r.Heatmap;
-            res.Save("C:\\Users\\Beck\\Desktop\\original.jpg");
-        }
+                foreach (var r in results)
+                {
+                    Console.WriteLine("This image has a " +  r.Score + "% abnormality.");
+                    Bitmap res = r.Heatmap;
+                    res.Save("C:\\Users\\Beck\\Desktop\\original.jpg");
+                }
 
-        Console.WriteLine("Done");
+                Console.WriteLine("Done");*/
 
         //Instance Segmentation
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_instance\\IMG-0946.jpg";
@@ -69,30 +69,27 @@ class Program
                 }*/
 
         //Object Detection
-        /*string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
+        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
         string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
 
-        using (ObjectDetection obj = new ObjectDetection(modelPath))
+        var obj = new ObjectDetection();
+        obj.InitializeModel(modelPath);
+        obj.Process(imagePath);
+        var resultImage = obj.imageResult;
+        List<ObjectDetectionResults>? results = obj.resultList;
+        if (results != null)
         {
-            obj.Process(imagePath);
-            var resultImage = obj.imageResult;
-            List<ObjectDetectionResults>? results = obj.resultList;
-            if (results.Count != 0)
+            foreach (var r in results)
             {
-                foreach (var r in results)
-                {
-                    Console.WriteLine("Output for {0}", r.Index);
-                    Console.WriteLine(r.Label);
-                    Console.WriteLine(r.Score);
-                    Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
-                }
+                Console.WriteLine("Output for {0}", r.Index);
+                Console.WriteLine(r.Label);
+                Console.WriteLine(r.Score);
+                Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
             }
-
-            resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
-            Console.WriteLine("The result image is saved at C:\\Users\\Beck\\Desktop");
         }
 
-        Console.WriteLine("Done");*/
+        resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
+        Console.WriteLine("Done");
 
         //Semantic Segmentation
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Dataset\\RankI\\Rank1_01.JPG";

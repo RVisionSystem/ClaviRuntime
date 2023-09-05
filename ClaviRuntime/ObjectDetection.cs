@@ -19,7 +19,7 @@ namespace ClaviRuntime
         public Bitmap? imageResult;
         public List<ObjectDetectionResults>? resultList;
 
-        public ObjectDetection(string modelPath)
+        public void InitializeModel(string modelPath)
         {
             var option = new SessionOptions();
             option.GraphOptimizationLevel = GraphOptimizationLevel.ORT_DISABLE_ALL;
@@ -27,10 +27,10 @@ namespace ClaviRuntime
             sess = new InferenceSession(modelPath, option);
         }
 
-        public void Process(string imagePath, float threshold = 0.5F)
+        public void Process(string imagePath, float threshold = 0.5F, float nmsThresh = 0.4f)
         {
             resultList = new List<ObjectDetectionResults>();
-            List<float[]> bbox = new List<float[]>();
+            Mat image = Cv2.ImRead(imagePath);
             //Check if the model is initialized
             try
             {
@@ -43,9 +43,6 @@ namespace ClaviRuntime
                 string lab = customMeta.ToArray()[0].Value;
                 var lab_dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(lab);
 
-                Mat image = Cv2.ImRead(imagePath);
-
-                float nmsThresh = 0.4f;
                 // inputW = dims[3]; inputH = dims[2];
                 OpenCvSharp.Size imgSize = new OpenCvSharp.Size(dims[3], dims[2]);
 
@@ -53,13 +50,9 @@ namespace ClaviRuntime
                 imageFloat.ConvertTo(imageFloat, MatType.CV_32FC1);
                 var input = new DenseTensor<float>(MatToList(imageFloat), new[] { dims[0], dims[1], dims[2], dims[3] });
 
-                //var labelList = GetLabel(class_name).ToArray();
                 var pallete = GenPalette(lab_dict.Count);
 
-                var inputs = new List<NamedOnnxValue>
-                {
-                    NamedOnnxValue.CreateFromTensor(inputName, input)
-                };
+                var inputs = new List<NamedOnnxValue>{ NamedOnnxValue.CreateFromTensor(inputName, input) };
 
                 using (var results = sess.Run(inputs))
                 {
@@ -94,6 +87,7 @@ namespace ClaviRuntime
                             for (int ids = 0; ids < indices.Length; ids++)
                             {
                                 int idx = indices[ids];
+                                var confi = candidate[idx][4];
 
                                 var dw = image.Width / (float)imgSize.Width;
                                 var dh = image.Height / (float)imgSize.Height;
@@ -106,21 +100,6 @@ namespace ClaviRuntime
                                 //draw bounding box
                                 Cv2.Rectangle(image, new Rect((int)rescale_Xmin, (int)rescale_Ymin, (int)(rescale_Xmax - rescale_Xmin), (int)(rescale_Ymax - rescale_Ymin)),
                                     new Scalar(pallete[label_value[idx]].Item0, pallete[label_value[idx]].Item1, pallete[label_value[idx]].Item2), 5);
-
-                                bbox.Add(new float[] { rescale_Xmin, rescale_Ymin, rescale_Xmax - rescale_Xmin, rescale_Ymax - rescale_Ymin });
-                            }
-                            for (int ids = 0; ids < indices.Length; ids++)
-                            {
-                                int idx = indices[ids];
-                                var confi = candidate[idx][4];
-
-                                var dw = image.Width / (float)imgSize.Width;
-                                var dh = image.Height / (float)imgSize.Height;
-
-                                var rescale_Xmin = candidate[idx][0] * dw;
-                                var rescale_Ymin = candidate[idx][1] * dh;
-                                var rescale_Xmax = candidate[idx][2] * dw;
-                                var rescale_Ymax = candidate[idx][3] * dh;
 
                                 //draw label
                                 var result_text = lab_dict[label_value[idx].ToString()] + "|" + confi.ToString("0.00");
@@ -135,6 +114,7 @@ namespace ClaviRuntime
                                     new Scalar(255, 255, 255), thickness);
 
                                 resultList.Add(new ObjectDetectionResults(ids, lab_dict[label_value[idx].ToString()].ToString(), confi, new float[] { rescale_Xmin, rescale_Ymin, rescale_Xmax - rescale_Xmin, rescale_Ymax - rescale_Ymin }));
+
                             }
                         }
                     }
@@ -148,6 +128,10 @@ namespace ClaviRuntime
             {
                 Console.WriteLine("Model not initialized");
                 Console.WriteLine(e.Message);
+                using (var ms = image.ToMemoryStream())
+                {
+                    imageResult = (Bitmap)System.Drawing.Image.FromStream(ms);
+                }
             }
         }
         public static List<List<float>> GetCandidate(float[] pred, int[] pred_dim, float pred_thresh = 0.25f)
@@ -214,7 +198,6 @@ namespace ClaviRuntime
             }
             return array;
         }
-
         public void Dispose()
         {
             sess?.Dispose();
