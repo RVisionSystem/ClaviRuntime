@@ -108,17 +108,6 @@ namespace ClaviRuntime
             }
         }
 
-        public List<string> UseJsonTextReaderInNewtonsoftJson(string json)
-        {
-            var serializer = new JsonSerializer();
-            List<string> adaptive_ratio = new();
-            using (var textReader = new JsonTextReader(new StringReader(json)))
-            {
-                adaptive_ratio = serializer.Deserialize<List<string>>(textReader);
-            }
-            return adaptive_ratio;
-        }
-
         public static Mat GetHeatmap(float[] output_value, int[] output_dim, float[] HM_value)
         {
             Mat mat = new Mat(new OpenCvSharp.Size(output_dim[2], output_dim[3]), MatType.CV_8UC3);
@@ -170,7 +159,6 @@ namespace ClaviRuntime
             }
             return mat;
         }
-
         private Mat DataPreprocessing(Mat image)
         {
             Mat data = Mat.Zeros(image.Size(), MatType.CV_32FC3);
@@ -221,26 +209,5 @@ namespace ClaviRuntime
             sess = null;
         }
 
-        public static List<float> GetAdaptiveThreshold(Dictionary<string, string> customMeta)
-        {
-            string[] vals = new string[customMeta.Values.Count];
-            customMeta.Values.CopyTo(vals, 0);
-            string image_threshold = vals[1].ToString();
-            string no_space = image_threshold.Replace(" ", "").Replace("{", "").Replace("}", "");
-
-            char[] delimiterChars = { ',', ':' };
-
-            string[] words = no_space.Split(delimiterChars);
-
-            List<float> cls_str = new List<float>();
-
-            for (int i = 0; i < words.Length; i++)
-            {
-                if (i % 2 != 0)
-                    cls_str.Add(float.Parse(words[i].Replace("\"", "")));
-            }
-            return cls_str;
-
-        }
     }
 }
