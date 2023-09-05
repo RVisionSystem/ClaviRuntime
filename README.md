@@ -1,6 +1,6 @@
 # ClaviRuntime
 ### Introduction <br>
-This repository offers a C# library for CLAVIRuntime, enabling users to leverage the CLAVI AI Model for image processing, perform inference with customizable parameters, and seamlessly integrate it into their own applications.
+This repository offers a C# library for CLAVIRuntime, enabling users to leverage the CLAVI AI Model for image processing, perform inference with customizable parameters, and seamlessly integrate it into your own applications.
 ### Constructors
 | Classes | Description |
 | --- | --- |
