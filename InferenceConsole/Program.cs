@@ -29,26 +29,26 @@ class Program
                 Console.WriteLine("Done");*/
 
         //Instance Segmentation
-        /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_instance\\IMG-0946.jpg";
-                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\instance\\model\\Instance_Segment.onnx";
+        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_instance\\IMG-0946.jpg";
+        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\instance\\model\\Instance_Segment.onnx";
 
-                var instanceSegmentation = new InstanceSegmentation();
-                instanceSegmentation.InitializeModel(modelPath);
-                instanceSegmentation.Process(imagePath);
-                Bitmap resultImage = instanceSegmentation.imageResult;
-                resultImage.Save("C:\\Users\\Beck\\Desktop\\IMG-0946_result.jpg");
-                List<InstanceSegmentationResults> results = instanceSegmentation.resultsList;
-                if (results.Count != 0)
-                {
-                    foreach (var r in results)
-                    {
-                        Console.WriteLine("Output for {0}", r.Id);
-                        Console.WriteLine(r.Name);
-                        Console.WriteLine(r.Score);
-                    }
-                }
+        var instanceSegmentation = new InstanceSegmentation();
+        instanceSegmentation.InitializeModel(modelPath);
+        instanceSegmentation.Process(imagePath);
+        Bitmap resultImage = instanceSegmentation.imageResult;
+        resultImage.Save("C:\\Users\\Beck\\Desktop\\IMG-0946_result.jpg");
+        List<InstanceSegmentationResults> results = instanceSegmentation.resultsList;
+        if (results != null)
+        {
+            foreach (var r in results)
+            {
+                Console.WriteLine("Output for {0}", r.Id);
+                Console.WriteLine(r.Name);
+                Console.WriteLine(r.Score);
+            }
+        }
 
-                Console.WriteLine("Done");*/
+        Console.WriteLine("Done");
 
         //Image Classification
         /*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\image\\ASTM-F2870\\ASTM-F2870_30.JPG";
@@ -69,27 +69,27 @@ class Program
                 }*/
 
         //Object Detection
-        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
-        string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
+        /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
+                string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
 
-        var obj = new ObjectDetection();
-        obj.InitializeModel(modelPath);
-        obj.Process(imagePath);
-        var resultImage = obj.imageResult;
-        List<ObjectDetectionResults>? results = obj.resultList;
-        if (results != null)
-        {
-            foreach (var r in results)
-            {
-                Console.WriteLine("Output for {0}", r.Index);
-                Console.WriteLine(r.Label);
-                Console.WriteLine(r.Score);
-                Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
-            }
-        }
+                var obj = new ObjectDetection();
+                obj.InitializeModel(modelPath);
+                obj.Process(imagePath);
+                var resultImage = obj.imageResult;
+                List<ObjectDetectionResults>? results = obj.resultList;
+                if (results != null)
+                {
+                    foreach (var r in results)
+                    {
+                        Console.WriteLine("Output for index {0}", r.Index);
+                        Console.WriteLine(r.Label);
+                        Console.WriteLine(r.Score);
+                        Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
+                    }
+                }
 
-        resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
-        Console.WriteLine("Done");
+                resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
+                Console.WriteLine("Done");*/
 
         //Semantic Segmentation
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Dataset\\RankI\\Rank1_01.JPG";

@@ -16,7 +16,6 @@ namespace ClaviRuntime
     {
         private InferenceSession? sess;
         public Bitmap? imageResult;
-        public String? toolname;
         public List<InstanceSegmentationResults>? resultsList;
         public void InitializeModel(string modelPath)
         {
@@ -94,6 +93,7 @@ namespace ClaviRuntime
                         for (int ids = 0; ids < indices.Length; ids++)
                         {
                             int idx = indices[ids];
+                            var confi = candidate[idx][4];
 
                             var dw = image.Width / (float)imgSize.Width;
                             var dh = image.Height / (float)imgSize.Height;
@@ -106,6 +106,19 @@ namespace ClaviRuntime
                             //draw bounding box
                             Cv2.Rectangle(image, new Rect((int)rescale_Xmin, (int)rescale_Ymin, (int)(rescale_Xmax - rescale_Xmin), (int)(rescale_Ymax - rescale_Ymin)),
                                 new Scalar(pallete[label_value[idx]].Item0, pallete[label_value[idx]].Item1, pallete[label_value[idx]].Item2), 5);
+                            //draw label
+                            var result_text = lab_dict[label_value[idx].ToString()] + "|" + confi.ToString("0.00");
+                            var scale = 0.8;
+                            var thickness = 1;
+                            HersheyFonts font = HersheyFonts.HersheyDuplex;
+                            int baseLine;
+                            var textSize = Cv2.GetTextSize(result_text, font, scale, thickness, out baseLine);
+                            Cv2.Rectangle(image, new OpenCvSharp.Point(rescale_Xmin + 4, rescale_Ymin + 4), new OpenCvSharp.Point(rescale_Xmin + textSize.Width, rescale_Ymin + textSize.Height + 10),
+                                new Scalar(0, 0, 0), -1);
+                            Cv2.PutText(image, result_text, new OpenCvSharp.Point(rescale_Xmin + 4, rescale_Ymin + textSize.Height + 4), font, scale,
+                                new Scalar(255, 255, 255), thickness);
+                            
+                            resultsList.Add(new InstanceSegmentationResults(ids.ToString(), result_text.ToString(), (float)confi));
 
                             var mask = mask_out[idx].Resize(new OpenCvSharp.Size(rescale_Xmax - rescale_Xmin, rescale_Ymax - rescale_Ymin));
 
@@ -124,38 +137,11 @@ namespace ClaviRuntime
                             }
                             Cv2.FillPoly(image, contours, new Scalar(pallete[label_value[idx]].Item0, pallete[label_value[idx]].Item1, pallete[label_value[idx]].Item2));
                             Cv2.DrawContours(image, contours, -1, new Scalar(255, 255, 255), 1);
+
                             using (var ms = image.ToMemoryStream())
                             {
                                 hmResult = (Bitmap)System.Drawing.Image.FromStream(ms);
                             }
-
-                        }
-                        for (int ids = 0; ids < indices.Length; ids++)
-                        {
-                            int idx = indices[ids];
-                            var confi = candidate[idx][4];
-
-                            var dw = image.Width / (float)imgSize.Width;
-                            var dh = image.Height / (float)imgSize.Height;
-
-                            var rescale_Xmin = candidate[idx][0] * dw;
-                            var rescale_Ymin = candidate[idx][1] * dh;
-                            var rescale_Xmax = candidate[idx][2] * dw;
-                            var rescale_Ymax = candidate[idx][3] * dh;
-
-                            //draw label
-                            var result_text = lab_dict[label_value[idx].ToString()] + "|" + confi.ToString("0.00");
-                            var scale = 0.8;
-                            var thickness = 1;
-                            HersheyFonts font = HersheyFonts.HersheyDuplex;
-                            int baseLine;
-                            var textSize = Cv2.GetTextSize(result_text, font, scale, thickness, out baseLine);
-                            Cv2.Rectangle(image, new OpenCvSharp.Point(rescale_Xmin + 4, rescale_Ymin + 4), new OpenCvSharp.Point(rescale_Xmin + textSize.Width, rescale_Ymin + textSize.Height + 10),
-                                new Scalar(0, 0, 0), -1);
-                            Cv2.PutText(image, result_text, new OpenCvSharp.Point(rescale_Xmin + 4, rescale_Ymin + textSize.Height + 4), font, scale,
-                                new Scalar(255, 255, 255), thickness);
-                            resultsList.Add(new InstanceSegmentationResults(ids.ToString(), result_text.ToString(), (float)confi));
-                            //, new float[] { rescale_Xmin, rescale_Ymin, rescale_Xmax - rescale_Xmin, rescale_Ymax - rescale_Ymin }
                         }
                     }
                     Cv2.AddWeighted(image, opacity, result, 1 - opacity, 0, result);
