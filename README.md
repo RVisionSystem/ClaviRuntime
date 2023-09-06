@@ -54,7 +54,7 @@ See .NET Documentation
   classify.InitializeModel(modelPath);
   classify.Process(imagePath);
   List<ImageClassificationResults> results = classify.resultsList;
-  if (results.Count != 0)
+  if (results != null)
   {
       foreach (var r in results)
       {
@@ -63,7 +63,7 @@ See .NET Documentation
       }
   }
 ```
-Find more examples see. 
+For more examples see. 
 
 
 
