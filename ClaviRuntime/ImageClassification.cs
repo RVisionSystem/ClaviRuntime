@@ -2,6 +2,11 @@
 using Microsoft.ML.OnnxRuntime;
 using Newtonsoft.Json;
 using OpenCvSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats;
+using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace ClaviRuntime
 {
@@ -33,16 +38,43 @@ namespace ClaviRuntime
                 string lab = customMeta.ToArray()[0].Value;
                 var lab_dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(lab);
 
-                Size imgSize = new Size(dims[3], dims[2]);
+                OpenCvSharp.Size imgSize = new OpenCvSharp.Size(dims[3], dims[2]);
 
                 Mat imageFloat = image.Resize(imgSize);
                 imageFloat.ConvertTo(imageFloat, MatType.CV_32FC1);
                 var input = new DenseTensor<float>(MatToList(imageFloat), new[] { dims[0], dims[1], dims[2], dims[3] });
 
-                var inputs = new List<NamedOnnxValue>
+/*                using Image<Rgb24> imageSix = SixLabors.ImageSharp.Image.Load<Rgb24>(imagePath, out IImageFormat format);
+                using Stream imageStream = new MemoryStream();
+                imageSix.Mutate(x =>
                 {
-                    NamedOnnxValue.CreateFromTensor(inputName, input)
-                };
+                    x.Resize(new ResizeOptions 
+                    {
+                        Size = new SixLabors.ImageSharp.Size(dims[3], dims[2]),
+                        Mode = ResizeMode.Crop
+                    }); 
+                });
+                imageSix.Save(imageStream, format);
+
+                Tensor<float> input = new DenseTensor<float>(new[] { dims[0], dims[1], dims[2], dims[3] });
+                var mean = new[] { 123.675, 116.28, 103.53 };
+                var stddev = new[] { 58.395, 57.12, 57.375 };
+                imageSix.ProcessPixelRows(accessor =>
+                {
+                    for (int y = 0; y < accessor.Height; y++)
+                    {
+                        Span<Rgb24> pixelSpan = accessor.GetRowSpan(y);
+                        for (int x = 0; x < accessor.Width; x++)
+                        {
+                            input[0, 0, y, x] = (float)((pixelSpan[x].R - mean[0]) / stddev[0]) / 255f;
+                            input[0, 1, y, x] = (float)((pixelSpan[x].G - mean[1]) / stddev[1]) / 255f;
+                            input[0, 2, y, x] = (float)((pixelSpan[x].B - mean[2]) / stddev[2]) / 255f;
+                        }
+
+                    }
+                });*/
+
+                var inputs = new List<NamedOnnxValue>{NamedOnnxValue.CreateFromTensor(inputName, input)};
                 using (var results = sess.Run(inputs))
                 {
                     var resultsArray = results.ToArray();
@@ -93,5 +125,6 @@ namespace ClaviRuntime
             sess?.Dispose();
             sess = null;
         }
+
     }
 }

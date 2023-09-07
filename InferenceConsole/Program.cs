@@ -29,44 +29,44 @@ class Program
                 Console.WriteLine("Done");*/
 
         //Instance Segmentation
-        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_instance\\IMG-0946.jpg";
-        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\instance\\model\\Instance_Segment.onnx";
+        /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_instance\\IMG-0946.jpg";
+                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\instance\\model\\Instance_Segment.onnx";
 
-        var instanceSegmentation = new InstanceSegmentation();
-        instanceSegmentation.InitializeModel(modelPath);
-        instanceSegmentation.Process(imagePath);
-        Bitmap resultImage = instanceSegmentation.imageResult;
-        resultImage.Save("C:\\Users\\Beck\\Desktop\\IMG-0946_result.jpg");
-        List<InstanceSegmentationResults> results = instanceSegmentation.resultsList;
-        if (results != null)
-        {
-            foreach (var r in results)
-            {
-                Console.WriteLine("Output for {0}", r.Id);
-                Console.WriteLine(r.Name);
-                Console.WriteLine(r.Score);
-            }
-        }
-
-        Console.WriteLine("Done");
-
-        //Image Classification
-        /*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\image\\ASTM-F2870\\ASTM-F2870_30.JPG";
-                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\model\\20230905.onnx";
-                Mat inputImg = Cv2.ImRead(imagePath);
-
-                var classify = new ImageClassification();
-                classify.InitializeModel(modelPath);
-                classify.Process(imagePath);
-                List<ImageClassificationResults> results = classify.resultsList;
-                if (results.Count != 0)
+                var instanceSegmentation = new InstanceSegmentation();
+                instanceSegmentation.InitializeModel(modelPath);
+                instanceSegmentation.Process(imagePath);
+                Bitmap resultImage = instanceSegmentation.imageResult;
+                resultImage.Save("C:\\Users\\Beck\\Desktop\\IMG-0946_result.jpg");
+                List<InstanceSegmentationResults> results = instanceSegmentation.resultsList;
+                if (results != null)
                 {
                     foreach (var r in results)
                     {
+                        Console.WriteLine("Output for {0}", r.Id);
                         Console.WriteLine(r.Name);
                         Console.WriteLine(r.Score);
                     }
-                }*/
+                }
+
+                Console.WriteLine("Done");*/
+
+        //Image Classification
+/*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\image\\SRTTSW\\test01.png";
+        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\model\\tire20230905.onnx";
+        Mat inputImg = Cv2.ImRead(imagePath);
+
+        var classify = new ImageClassification();
+        classify.InitializeModel(modelPath);
+        classify.Process(imagePath);
+        List<ImageClassificationResults> results = classify.resultsList;
+        if (results.Count != 0)
+        {
+            foreach (var r in results)
+            {
+                Console.WriteLine(r.Name);
+                Console.WriteLine(r.Score);
+            }
+        }*/
 
         //Object Detection
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
@@ -106,6 +106,21 @@ class Program
                 resultImage.Save("C:\\Users\\Beck\\Desktop\\original.jpg");
 
                 Console.WriteLine("Done");*/
+
+
+        // Face Recognition 
+        string imagePath1 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\jiran\\jiran_5.jpg";
+        string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\jiran\\jiran_1.jpg";
+        //string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\yu\\yu_0.jpg";
+        //string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\ai\\ai_0.jpg";
+        //string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\\\yu_0.jpg";
+        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\model\\best-face-recog.onnx";
+        var face = new FaceRecognition();
+        face.InitializeModel(modelPath);
+        //Bitmap resultImage = instanceSegmentation.process(imagePath);
+        face.Process(imagePath1, imagePath2);
+        //resultImage.Save("C:\\Users\\Beck\\Desktop\\IMG-0946_result.jpg");
+        Console.WriteLine("Done");
 
 
     }
