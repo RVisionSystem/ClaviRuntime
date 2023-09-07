@@ -23,8 +23,8 @@ See .NET Documentation
    └─ Microsoft SDKs
       └─ NuGetPackages
          └─ CLAVIRuntime
-           └─ 1.0.3
-             └─ ClaviRuntime.1.0.3.nupkg
+            └─ 1.0.3
+               └─ ClaviRuntime.1.0.3.nupkg
    ```
 3. Open your project in Visual Studio, in **Solution Explorer**, and then select **Project** > **Manage NuGet Packages**.
 4. Select the **Browse** the tab. To search for a specific package, select **Settings** icon in the right pane.
