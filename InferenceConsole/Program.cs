@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Text.Json;
 using System.Security.Cryptography.X509Certificates;
 using System.Diagnostics.Metrics;
+using Newtonsoft.Json.Linq;
 
 class Program
 {
@@ -51,45 +52,45 @@ class Program
                 Console.WriteLine("Done");*/
 
         //Image Classification
-/*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\image\\SRTTSW\\test01.png";
-        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\model\\tire20230905.onnx";
-        Mat inputImg = Cv2.ImRead(imagePath);
+        /*        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\image\\SRTTSW\\test01.png";
+                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\classification\\tire\\model\\tire20230905.onnx";
+                Mat inputImg = Cv2.ImRead(imagePath);
 
-        var classify = new ImageClassification();
-        classify.InitializeModel(modelPath);
-        classify.Process(imagePath);
-        List<ImageClassificationResults> results = classify.resultsList;
-        if (results.Count != 0)
-        {
-            foreach (var r in results)
-            {
-                Console.WriteLine(r.Name);
-                Console.WriteLine(r.Score);
-            }
-        }*/
-
-        //Object Detection
-        /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
-                string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
-
-                var obj = new ObjectDetection();
-                obj.InitializeModel(modelPath);
-                obj.Process(imagePath);
-                var resultImage = obj.imageResult;
-                List<ObjectDetectionResults>? results = obj.resultList;
-                if (results != null)
+                var classify = new ImageClassification();
+                classify.InitializeModel(modelPath);
+                classify.Process(imagePath);
+                List<ImageClassificationResults> results = classify.resultsList;
+                if (results.Count != 0)
                 {
                     foreach (var r in results)
                     {
-                        Console.WriteLine("Output for index {0}", r.Index);
-                        Console.WriteLine(r.Label);
+                        Console.WriteLine(r.Name);
                         Console.WriteLine(r.Score);
-                        Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
                     }
-                }
+                }*/
 
-                resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
-                Console.WriteLine("Done");*/
+        //Object Detection
+        /*string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
+        string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
+
+        var obj = new ObjectDetection();
+        obj.InitializeModel(modelPath);
+        obj.Process(imagePath);
+        var resultImage = obj.imageResult;
+        List<ObjectDetectionResults>? results = obj.resultList;
+        if (results != null)
+        {
+            foreach (var r in results)
+            {
+                Console.WriteLine("Output for index {0}", r.Index);
+                Console.WriteLine(r.Label);
+                Console.WriteLine(r.Score);
+                Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
+            }
+        }
+
+        resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
+        Console.WriteLine("Done");*/
 
         //Semantic Segmentation
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Dataset\\RankI\\Rank1_01.JPG";
@@ -108,19 +109,31 @@ class Program
                 Console.WriteLine("Done");*/
 
 
-        // Face Recognition 
-        string imagePath1 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\jiran\\jiran_5.jpg";
-        string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\jiran\\jiran_1.jpg";
-        //string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\yu\\yu_0.jpg";
-        //string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\ai\\ai_0.jpg";
-        //string imagePath2 = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\data\\\\yu_0.jpg";
+        //Face Recognition 
+        string targetImagePath = "C:\\Users\\Beck\\Downloads\\aitest.jpg";
         string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\model\\best-face-recog.onnx";
         var face = new FaceRecognition();
         face.InitializeModel(modelPath);
         //Bitmap resultImage = instanceSegmentation.process(imagePath);
-        face.Process(imagePath1, imagePath2);
+        face.Process(targetImagePath, targetImagePath);
+
+/*        string peoplePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\";
+        foreach (string peopleFileName in Directory.GetFiles(peoplePath, "*.txt"))
+        {
+            Console.WriteLine(peopleFileName);
+            // file name without extension
+            string fileName = Path.GetFileNameWithoutExtension(peopleFileName);
+            string ImagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\" + fileName + "\\";
+            foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
+            {
+                face.Process(imageFileName, imageFileName);
+            }
+                
+        }*/
         //resultImage.Save("C:\\Users\\Beck\\Desktop\\IMG-0946_result.jpg");
-        Console.WriteLine("Done");
+        //Console.WriteLine("Done");
+        //face.ReadJSON();
+
 
 
     }

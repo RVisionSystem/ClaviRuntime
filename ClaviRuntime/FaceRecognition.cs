@@ -7,6 +7,11 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using OpenCvSharp.Flann;
+using Newtonsoft.Json;
+using System.Data;
+using System.Runtime.Intrinsics.X86;
 
 namespace ClaviRuntime
 {
@@ -14,7 +19,7 @@ namespace ClaviRuntime
     {
         private InferenceSession? sess;
         public Bitmap? imageResult;
-        public List<ObjectDetectionResults>? resultList;
+        public List<FaceRecognitionResults>? resultList;
 
         public void InitializeModel(string modelPath)
         {
@@ -28,6 +33,7 @@ namespace ClaviRuntime
         {
             try
             {
+                Dictionary<string, float> errPair = new Dictionary<string, float>();
                 var inputMeta = sess.InputMetadata;
                 var inputName1 = inputMeta.Keys.ToArray()[0];
                 var inputName2 = inputMeta.Keys.ToArray()[1];
@@ -37,41 +43,33 @@ namespace ClaviRuntime
                 //string lab = customMeta.ToArray()[0].Value;
                 //var lab_dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(lab);
 
-                Mat image1 = Cv2.ImRead(imagePath1, ImreadModes.Grayscale);
-                Mat image2 = Cv2.ImRead(imagePath2, ImreadModes.Grayscale);
+                Mat imageTarget = Cv2.ImRead(imagePath2, ImreadModes.Grayscale);
 
-                float nmsThresh = 0.4f;
                 // inputW = dims[3]; inputH = dims[2];
                 OpenCvSharp.Size imgSize = new OpenCvSharp.Size(dims[3], dims[2]);
 
-                Mat imageFloat1 = image1.Resize(imgSize);
-                imageFloat1.ConvertTo(imageFloat1, MatType.CV_32FC1, 1 / 255.0f);
-
-                Mat imageFloat2 = image2.Resize(imgSize);
-                imageFloat2.ConvertTo(imageFloat2, MatType.CV_32FC1, 1 / 255.0f);
-
-                var input1 = new DenseTensor<float>(MatToList(imageFloat1), new[] { dims[0], dims[1], dims[2], dims[3] });
-                var input2 = new DenseTensor<float>(MatToList(imageFloat2), new[] { dims[0], dims[1], dims[2], dims[3] });
-
-                //var labelList = GetLabel(class_name).ToArray();
-                //var pallete = GenPalette(lab_dict.Count);
+                Mat imageTargetFloat = imageTarget.Resize(imgSize);
+                imageTargetFloat.ConvertTo(imageTargetFloat, MatType.CV_32FC1, 1 / 255.0f);
+                var input1 = new DenseTensor<float>(MatToList(imageTargetFloat), new[] { dims[0], dims[1], dims[2], dims[3] });
 
                 var inputs = new List<NamedOnnxValue>
                 {
-                    NamedOnnxValue.CreateFromTensor(inputName1, input1),
-                    NamedOnnxValue.CreateFromTensor(inputName2, input2)
+                    NamedOnnxValue.CreateFromTensor(inputName1, input1), //input same image
+                    NamedOnnxValue.CreateFromTensor(inputName2, input1)
                 };
 
                 using (var results = sess.Run(inputs))
                 {
                     //Postprocessing
                     var resultsArray = results.ToArray();
-                    var face1 = resultsArray[0].AsEnumerable<float>().ToArray();
-                    var face2 = resultsArray[1].AsEnumerable<float>().ToArray();
-                    //var pred_dim = resultsArray[0].AsTensor<float>().Dimensions.ToArray();
-                    //var label_value = resultsArray[1].AsEnumerable<Int64>().ToArray();
-                    float dissim = CalculateEuclideanDistance(face1, face2);
-                    Console.WriteLine("Dissimilarity: " + dissim);
+                    var targetFace = resultsArray[0].AsEnumerable<float>().ToArray();
+                    //var face2 = resultsArray[1].AsEnumerable<float>().ToArray();
+                    var result = CalculateAverageEuclideanDistance(targetFace);
+
+                    // return the minimun error
+                    string resName = GetKeyOfMinValue(result);
+                    Console.WriteLine("Result: " + resName);
+
                 }
             }
             catch (Exception e)
@@ -129,9 +127,111 @@ namespace ClaviRuntime
             return (float)Math.Sqrt(sum);
         }
 
-        public static void dissimilarity(float[] point1, float[] point2)
+        public static void dissimilarity(float[] pointDB, float[] pointTarget)
         {
-            float distance = CalculateEuclideanDistance(point1, point2);
+            float distance = CalculateEuclideanDistance(pointDB, pointTarget);
         }
+
+        public void CreateDB() // float[] inputFace
+        {
+            Dictionary<string, List<float[]>> dbFace = new Dictionary<string, List<float[]>>();
+            
+            var sess = new InferenceSession("C:\\Users\\Beck\\Model\\model-test-lib\\face\\model\\best-face-recog.onnx");
+            var inputMeta = sess.InputMetadata;
+            var inputName1 = inputMeta.Keys.ToArray()[0];
+            var inputName2 = inputMeta.Keys.ToArray()[1];
+            var class_name = sess.ModelMetadata.CustomMetadataMap;
+            int[] dims = inputMeta[inputName1].Dimensions;
+
+            string peoplePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\";
+            foreach (string peopleFileName in Directory.GetFiles(peoplePath, "*.txt"))
+            {
+                // file name without extension
+                string fileName = Path.GetFileNameWithoutExtension(peopleFileName);
+                string ImagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\" + fileName + "\\";
+                int ind = 0;
+                JObject sing = new JObject();
+                foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
+                {
+                    Mat image1 = Cv2.ImRead(imageFileName, ImreadModes.Grayscale);
+
+                    OpenCvSharp.Size imgSize = new OpenCvSharp.Size(dims[3], dims[2]);
+
+                    Mat imageFloat1 = image1.Resize(imgSize);
+                    imageFloat1.ConvertTo(imageFloat1, MatType.CV_32FC1, 1/255.0f);
+
+                    var input1 = new DenseTensor<float>(MatToList(imageFloat1), new[] { dims[0], dims[1], dims[2], dims[3] });
+
+                    var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor(inputName1, input1), NamedOnnxValue.CreateFromTensor(inputName2, input1) };
+
+                    using (var results = sess.Run(inputs))
+                    {
+                        JArray eachFace = new JArray();
+                        var resultsArray = results.ToArray();
+                        var face1 = resultsArray[0].AsEnumerable<float>().ToArray();
+                        foreach (var face in face1)
+                        {
+                            eachFace.Add(face);
+                        }
+                        sing[ind.ToString()] = eachFace;
+                        ind++;
+                    }
+                }
+                JObject o = new JObject();
+                o[fileName] = sing;
+                string js = o.ToString();
+            }
+        }
+
+        public void ReadJSON()
+        {
+            string json = File.ReadAllText("C:\\Users\\Beck\\Model\\model-test-lib\\face\\Database.json");
+            var faceDict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, float[]>>>(json);
+            foreach (var item in faceDict)
+            {
+                Console.WriteLine(item.Key);
+                foreach (var item2 in item.Value)
+                {
+                    Console.WriteLine(item2.Key + " - " + item2.Value[0]);
+                }
+            }
+        }
+
+        public static Dictionary<string, float> CalculateAverageEuclideanDistance(float[] targetPnt)
+        {
+
+            Dictionary<string, float> errPair = new Dictionary<string, float>();
+            string json = File.ReadAllText("C:\\Users\\Beck\\Model\\model-test-lib\\face\\Database.json");
+            var faceDict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, float[]>>>(json);
+            foreach (var item in faceDict)
+            {
+                // average with the item.Value.Count()
+                float numFaces = item.Value.Count();
+                float sum = 0f;
+
+                foreach (var item2 in item.Value)
+                {
+                    // Find Dissimilatlity
+                    float a = CalculateEuclideanDistance(item2.Value, targetPnt);
+                    sum += a;
+                }
+                errPair.Add(item.Key, (float)(sum/numFaces));
+            }
+            return errPair;
+        }
+
+        static TKey GetKeyOfMinValue<TKey, TValue>(IDictionary<TKey, TValue> dictionary) where TValue : IComparable<TValue>
+        {
+            KeyValuePair<TKey, TValue> min = dictionary.First();
+            foreach (KeyValuePair<TKey, TValue> pair in dictionary.Skip(1))
+            {
+                if (pair.Value.CompareTo(min.Value) < 0)
+                {
+                    min = pair;
+                }
+            }
+            return min.Key;
+        }
+
     }
 }

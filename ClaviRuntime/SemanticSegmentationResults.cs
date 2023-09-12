@@ -9,9 +9,7 @@ namespace ClaviRuntime
 {
     public class SemanticSegmentationResults
     {
-
         private Bitmap mask;
-
         public SemanticSegmentationResults(Bitmap mask)
         {
             this.mask = mask;
