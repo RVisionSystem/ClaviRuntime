@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Version>1.0.4</Version>
+    <Authors>Ryowa Development Team</Authors>
+    <Company>Ryowa Co., Ltd.</Company>
+    <Description>Provides a libraries for inferencing all functionality of CLAVI AI model.</Description>
   </PropertyGroup>
 
   <ItemGroup>

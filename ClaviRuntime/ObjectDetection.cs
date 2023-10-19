@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
+using SixLabors.ImageSharp;
 
 namespace ClaviRuntime
 {
@@ -37,10 +38,9 @@ namespace ClaviRuntime
                 // Setup inputs and outputs
                 var inputMeta = sess.InputMetadata;
                 var inputName = inputMeta.Keys.ToArray()[0];
-                var class_name = sess.ModelMetadata.CustomMetadataMap;
                 int[] dims = inputMeta[inputName].Dimensions;
                 var customMeta = sess.ModelMetadata.CustomMetadataMap;
-                string lab = customMeta.ToArray()[0].Value;
+                string lab = customMeta.ToArray()[9].Value;
                 var lab_dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(lab);
 
                 // inputW = dims[3]; inputH = dims[2];
@@ -48,6 +48,7 @@ namespace ClaviRuntime
 
                 Mat imageFloat = image.Resize(imgSize);
                 imageFloat.ConvertTo(imageFloat, MatType.CV_32FC1);
+
                 var input = new DenseTensor<float>(MatToList(imageFloat), new[] { dims[0], dims[1], dims[2], dims[3] });
 
                 var pallete = GenPalette(lab_dict.Count);
@@ -198,10 +199,46 @@ namespace ClaviRuntime
             }
             return array;
         }
+        public static Mat AddPadding(Mat src, int top, int bottom, int left, int right, BorderTypes borderTypes, Scalar value)
+        {
+            Mat dst = new Mat();
+            Cv2.CopyMakeBorder(src, dst, top, bottom, left, right, borderTypes, value);
+            return dst;
+        }
+        private static Mat preprocessing(Mat inputMat, OpenCvSharp.Size requiredSize)
+        {
+            //Resize
+            // Calculate the ratio of the new size to the original size
+            float widthRatio = (float)requiredSize.Width / (float)inputMat.Width;
+            float heightRatio = (float)requiredSize.Height / (float)inputMat.Height;
+            float ratio = Math.Min(heightRatio, widthRatio);
+
+            // Calculate the new width and height based on the ratio
+            int newWidth = (int)(inputMat.Width * ratio);
+            int newHeight = (int)(inputMat.Height * ratio);
+
+            OpenCvSharp.Size sizeToResize = new OpenCvSharp.Size(newWidth, newHeight);
+
+            //Resize with aspect ratio
+            Mat resizedImage = inputMat.Resize(sizeToResize); 
+            resizedImage.ConvertTo(resizedImage, MatType.CV_32FC3);
+            //Calculate the top left bottom right padding
+            int TB = (requiredSize.Height - newHeight) / 2;
+            int LR = (requiredSize.Width - newWidth) / 2;
+
+            //Padding
+            Mat padded = AddPadding(resizedImage, TB, TB, LR, LR, BorderTypes.Constant, new Scalar(114, 114, 114));
+
+            return padded;
+        
+        }
         public void Dispose()
         {
             sess?.Dispose();
             sess = null;
         }
+
+
+
     }
 }

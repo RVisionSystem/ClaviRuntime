@@ -70,15 +70,16 @@ class Program
                 }*/
 
         //Object Detection
-        /*string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
-        string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
+        //string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
+        //string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
+        string modelPath = "C:\\Users\\Beck\\Downloads\\NipponSteel\\ModelNipponSteel\\NipponSteel.onnx";
 
         var obj = new ObjectDetection();
         obj.InitializeModel(modelPath);
-        obj.Process(imagePath);
-        var resultImage = obj.imageResult;
-        List<ObjectDetectionResults>? results = obj.resultList;
-        if (results != null)
+        //obj.Process(imagePath);
+        //var resultImage = obj.imageResult;
+        //List<ObjectDetectionResults>? results = obj.resultList;
+/*        if (results != null)
         {
             foreach (var r in results)
             {
@@ -87,10 +88,19 @@ class Program
                 Console.WriteLine(r.Score);
                 Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
             }
+        }*/
+
+        string ImagePath = "C:\\Users\\Beck\\Downloads\\NipponSteel\\Data\\";
+        foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
+        {
+            obj.Process(imageFileName);
+            var resultImage = obj.imageResult;
+            string fileName = Path.GetFileNameWithoutExtension(imageFileName);
+            resultImage.Save("C:\\Users\\Beck\\Downloads\\NipponSteel\\Result\\" + fileName + ".jpg");
         }
 
-        resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
-        Console.WriteLine("Done");*/
+        //resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
+        //Console.WriteLine("Done");
 
         //Semantic Segmentation
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Dataset\\RankI\\Rank1_01.JPG";
@@ -110,26 +120,29 @@ class Program
 
 
         //Face Recognition 
-        string targetImagePath = "C:\\Users\\Beck\\Downloads\\aitest.jpg";
-        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\model\\best-face-recog.onnx";
-        var face = new FaceRecognition();
-        face.InitializeModel(modelPath);
-        //Bitmap resultImage = instanceSegmentation.process(imagePath);
-        face.Process(targetImagePath, targetImagePath);
+        //string targetImagePath = "C:\\Users\\Beck\\Downloads\\aitest.jpg";
+        /*        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\model\\face-recog22_9.onnx";
+                var face = new FaceRecognition();
+                face.InitializeModel(modelPath);
+                //Bitmap resultImage = instanceSegmentation.process(imagePath);
+                //face.Process(targetImagePath, targetImagePath);
+                //List<FaceRecognitionResults>? results = face.resultsList;
+                //face.CreateDB();
 
-/*        string peoplePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\";
-        foreach (string peopleFileName in Directory.GetFiles(peoplePath, "*.txt"))
-        {
-            Console.WriteLine(peopleFileName);
-            // file name without extension
-            string fileName = Path.GetFileNameWithoutExtension(peopleFileName);
-            string ImagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\" + fileName + "\\";
-            foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
-            {
-                face.Process(imageFileName, imageFileName);
-            }
-                
-        }*/
+                // For testing
+                string peoplePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\";
+                foreach (string peopleFileName in Directory.GetFiles(peoplePath, "*.txt"))
+                {
+                    Console.WriteLine(peopleFileName);
+                    // file name without extension
+                    string fileName = Path.GetFileNameWithoutExtension(peopleFileName);
+                    string ImagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\face\\" + fileName + "\\";
+                    foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
+                    {
+                        face.Process(imageFileName, imageFileName);
+                    }
+
+                }*/
         //resultImage.Save("C:\\Users\\Beck\\Desktop\\IMG-0946_result.jpg");
         //Console.WriteLine("Done");
         //face.ReadJSON();

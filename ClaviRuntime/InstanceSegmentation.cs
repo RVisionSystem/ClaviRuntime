@@ -278,6 +278,14 @@ namespace ClaviRuntime
             return array;
         }
 
+/*        private unsafe static Mat CreateImage(float[] input, int ih, int iw)
+        {
+            //float[] input = { 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, ... };
+            Mat imgf = new Mat(2, 100, MatType.CV_32F);
+            int row = 0, col = 0;
+            //imgf.put(row, col, input);
+        }*/
+
         public void Dispose()
         {
             sess?.Dispose();

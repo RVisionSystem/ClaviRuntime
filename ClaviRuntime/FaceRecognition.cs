@@ -68,7 +68,8 @@ namespace ClaviRuntime
 
                     // return the minimun error
                     string resName = GetKeyOfMinValue(result);
-                    Console.WriteLine("Result: " + resName);
+                    Console.WriteLine(resName);
+                    //resultList.Add(new FaceRecognitionResults(resName));
 
                 }
             }
@@ -136,7 +137,7 @@ namespace ClaviRuntime
         {
             Dictionary<string, List<float[]>> dbFace = new Dictionary<string, List<float[]>>();
             
-            var sess = new InferenceSession("C:\\Users\\Beck\\Model\\model-test-lib\\face\\model\\best-face-recog.onnx");
+            var sess = new InferenceSession("C:\\Users\\Beck\\Model\\model-test-lib\\face\\model\\face-recog22_9.onnx");
             var inputMeta = sess.InputMetadata;
             var inputName1 = inputMeta.Keys.ToArray()[0];
             var inputName2 = inputMeta.Keys.ToArray()[1];
@@ -180,12 +181,13 @@ namespace ClaviRuntime
                 JObject o = new JObject();
                 o[fileName] = sing;
                 string js = o.ToString();
+                Console.WriteLine(js);
             }
         }
 
         public void ReadJSON()
         {
-            string json = File.ReadAllText("C:\\Users\\Beck\\Model\\model-test-lib\\face\\Database.json");
+            string json = File.ReadAllText("C:\\Users\\Beck\\Model\\model-test-lib\\face\\10points.json");
             var faceDict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, float[]>>>(json);
             foreach (var item in faceDict)
             {
@@ -201,7 +203,7 @@ namespace ClaviRuntime
         {
 
             Dictionary<string, float> errPair = new Dictionary<string, float>();
-            string json = File.ReadAllText("C:\\Users\\Beck\\Model\\model-test-lib\\face\\Database.json");
+            string json = File.ReadAllText("C:\\Users\\Beck\\Model\\model-test-lib\\face\\10points.json");
             var faceDict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, float[]>>>(json);
             foreach (var item in faceDict)
             {
@@ -216,6 +218,7 @@ namespace ClaviRuntime
                     sum += a;
                 }
                 errPair.Add(item.Key, (float)(sum/numFaces));
+                //Console.WriteLine(item.Key + " - " + (float)(sum / numFaces));
             }
             return errPair;
         }
