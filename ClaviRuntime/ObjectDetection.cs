@@ -22,10 +22,10 @@ namespace ClaviRuntime
         public Bitmap? imageResult;
         public List<ObjectDetectionResults>? resultList;
         private Dictionary<string, string>? LABEL_LIST;
-        private OpenCvSharp.Size PAD_SIZE;
-        private OpenCvSharp.Size ACTUAL_SIZE;
+        private Dictionary<string, string>? CUSTOM_META;
+        private IReadOnlyDictionary<string, NodeMetadata>? INPUT_META;
+        private string? INPUT_NAME;
         private OpenCvSharp.Size REQUIRED_SIZE;
-        private OpenCvSharp.Size RESIZED_IMAGE;
         private int[]? DIMENSION;
 
         public void InitializeModel(string modelPath)
@@ -34,6 +34,15 @@ namespace ClaviRuntime
             option.GraphOptimizationLevel = GraphOptimizationLevel.ORT_DISABLE_ALL;
             option.ExecutionMode = ExecutionMode.ORT_SEQUENTIAL;
             SESS = new InferenceSession(modelPath, option);
+
+            // Setup inputs and outputs
+            INPUT_META = SESS.InputMetadata;
+            INPUT_NAME = INPUT_META.Keys.ToArray()[0];
+            DIMENSION = INPUT_META[INPUT_NAME].Dimensions;
+            CUSTOM_META = SESS.ModelMetadata.CustomMetadataMap;
+            //New model customMeta.ToArray()[9].Value;
+            LABEL_LIST = JsonConvert.DeserializeObject<Dictionary<string, string>>(CUSTOM_META.ToArray()[0].Value);
+
         }
 
         public void Process(string imagePath, float threshold = 0.5F, float nmsThresh = 0.4f)
@@ -43,33 +52,19 @@ namespace ClaviRuntime
             //Check if the model is initialized
             try
             {
-                // Setup inputs and outputs
-                var inputMeta = SESS.InputMetadata;
-                var inputName = inputMeta.Keys.ToArray()[0];
-                DIMENSION = inputMeta[inputName].Dimensions;
-                var customMeta = SESS.ModelMetadata.CustomMetadataMap;
-                //New model customMeta.ToArray()[9].Value;
-                LABEL_LIST = JsonConvert.DeserializeObject<Dictionary<string, string>>(customMeta.ToArray()[0].Value);
-
                 // WIDTH = DIMENSION_SIZE[3]; HEIGHT = DIMENSION_SIZE[2];
                 REQUIRED_SIZE = new OpenCvSharp.Size(DIMENSION[3], DIMENSION[2]);
-                ACTUAL_SIZE = new OpenCvSharp.Size(image.Width, image.Height);
-                RESIZED_IMAGE = GetResizedImage(ACTUAL_SIZE, REQUIRED_SIZE);
-
-                var pallete = GenPalette(LABEL_LIST.Count);
 
                 var processedImg = Preprocessing(image, REQUIRED_SIZE);
                 var input = new DenseTensor<float>(MatToList(processedImg), new[] { DIMENSION[0], DIMENSION[1], DIMENSION[2], DIMENSION[3] });
-
-                var inputs = new List<NamedOnnxValue>{ NamedOnnxValue.CreateFromTensor(inputName, input) };
+                var inputs = new List<NamedOnnxValue>{ NamedOnnxValue.CreateFromTensor(INPUT_NAME, input) };
 
                 var results = SESS.Run(inputs);
                 resultList = Postprocessing(results);
 
                 if (resultList.Count != 0)
                 {
-                    //Draw bounding box on image without padding.
-                    //Scalling back to original size (remove padding from rectangle size * scaling)
+                    //Draw result image
                     Bitmap a = BuildResultImage(image, resultList);
                     imageResult = a;
 
@@ -156,21 +151,6 @@ namespace ClaviRuntime
             return dst;
         }
 
-        //Calculate scaling
-        private static OpenCvSharp.Size GetScaling(OpenCvSharp.Size originalSize, OpenCvSharp.Size targetSize)
-        {
-            float widthRatio = (float)targetSize.Width / (float)originalSize.Width;
-            float heightRatio = (float)targetSize.Height / (float)originalSize.Height;
-            float ratio = Math.Min(heightRatio, widthRatio);
-
-            int newWidth = (int)(originalSize.Width * ratio);
-            int newHeight = (int)(originalSize.Height * ratio);
-
-            OpenCvSharp.Size sizeToResize = new OpenCvSharp.Size(newWidth, newHeight);
-
-            return sizeToResize;
-        }
-
         //Resize image
         private static OpenCvSharp.Size GetResizedImage(OpenCvSharp.Size actualSize, OpenCvSharp.Size requiredSize)
         {
@@ -185,23 +165,6 @@ namespace ClaviRuntime
             OpenCvSharp.Size newSize = new OpenCvSharp.Size(newWidth, newHeight);
 
             return newSize;
-        }
-
-        private static Mat ResizeImage(Mat inputImage, OpenCvSharp.Size requiredSize)
-        {
-            float widthRatio = (float)requiredSize.Width / (float)inputImage.Width;
-            float heightRatio = (float)requiredSize.Height / (float)inputImage.Height;
-            float ratio = Math.Min(heightRatio, widthRatio);
-
-            // Calculate the new width and height based on the ratio
-            int newWidth = (int)(inputImage.Width * ratio);
-            int newHeight = (int)(inputImage.Height * ratio);
-
-            OpenCvSharp.Size newSize = new OpenCvSharp.Size(newWidth, newHeight);
-            Mat resizedImage = inputImage.Resize(newSize);
-            resizedImage.ConvertTo(resizedImage, MatType.CV_32FC3);
-
-            return resizedImage;
         }
 
         //Get padding
@@ -272,14 +235,14 @@ namespace ClaviRuntime
                     for (int ids = 0; ids < indices.Length; ids++)
                     {
                         int idx = indices[ids];
-                        var confi = candidate[idx][4];
+                        var conf = candidate[idx][4];
 
                         var Xmin = candidate[idx][0];
                         var Ymin = candidate[idx][1];
                         var Xmax = candidate[idx][2];
                         var Ymax = candidate[idx][3];
 
-                        resList.Add(new ObjectDetectionResults(ids, idx.ToString(), confi, new float[] { Xmin, Ymin, Xmax, Ymax }));
+                        resList.Add(new ObjectDetectionResults(ids, idx.ToString(), conf, new float[] { Xmin, Ymin, Xmax, Ymax }));
 
                     }
                 }
@@ -298,7 +261,6 @@ namespace ClaviRuntime
 
         private Bitmap BuildResultImage(Mat InputImage, List<ObjectDetectionResults> resultList)
         {
-            var pallete = GenPalette(LABEL_LIST.Count);
             string[] brushArray = typeof(System.Drawing.Color).GetProperties().Select(c => c.Name).ToArray();
 
             System.Drawing.Color colorBox = System.Drawing.Color.FromName(brushArray[0]);
@@ -307,22 +269,20 @@ namespace ClaviRuntime
             //Deaw graphics
             using (var g = Graphics.FromImage(imageToDraw))
             {
-
                 if (resultList != null)
                 {
                     foreach (var res in resultList)
                     {
+                        //remove padding and scale up;
+                        var resizedSize = GetResizedImage(InputImage.Size(), REQUIRED_SIZE);
+                        var scaleW = (float)InputImage.Width / (float)resizedSize.Width;
+                        var scaleH = (float)InputImage.Height / (float)resizedSize.Height;
+                        var paddedSize = GetPaddingSize(REQUIRED_SIZE, resizedSize);
 
-                        //div btw the resized image and the padded image
-                        //RESIZED_IMAGE + PAD_SIZE;
-                        var dw2 = ACTUAL_SIZE.Width / (float)RESIZED_IMAGE.Width;
-                        var dh2 = ACTUAL_SIZE.Height / (float)RESIZED_IMAGE.Height;
-                        PAD_SIZE = GetPaddingSize(REQUIRED_SIZE, RESIZED_IMAGE);
-
-                        var l = ((res.Box[0] - PAD_SIZE.Width) * dw2);
-                        var t = ((res.Box[1] - PAD_SIZE.Height) * dh2);
-                        var r = ((res.Box[2] - PAD_SIZE.Width) * dw2);
-                        var b = ((res.Box[3] - PAD_SIZE.Height) * dh2);
+                        var l = ((res.Box[0] - paddedSize.Width) * scaleW);
+                        var t = ((res.Box[1] - paddedSize.Height) * scaleH);
+                        var r = ((res.Box[2] - paddedSize.Width) * scaleW);
+                        var b = ((res.Box[3] - paddedSize.Height) * scaleH);
 
                         Pen blackPen = new Pen(System.Drawing.Color.Red, 10);
                         g.DrawRectangle(blackPen, l, t, r-l, b-t);
