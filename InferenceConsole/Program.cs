@@ -70,16 +70,16 @@ class Program
                 }*/
 
         //Object Detection
-        //string imagePath = "C:\\Users\\Beck\\Pictures\\Original_Dataset\\Sample_Obj\\IMG-0970.jpg";
+        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg";
         //string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
-        string modelPath = "C:\\Users\\Beck\\Downloads\\NipponSteel\\ModelNipponSteel\\NipponSteel.onnx";
+        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\object\\model\\Object_Clip.onnx";
 
         var obj = new ObjectDetection();
         obj.InitializeModel(modelPath);
-        //obj.Process(imagePath);
-        //var resultImage = obj.imageResult;
-        //List<ObjectDetectionResults>? results = obj.resultList;
-/*        if (results != null)
+        obj.Process(imagePath);
+        var resultImage = obj.imageResult;
+/*         List<ObjectDetectionResults>? results = obj.resultList;
+       if (results != null)
         {
             foreach (var r in results)
             {
@@ -90,17 +90,17 @@ class Program
             }
         }*/
 
-        string ImagePath = "C:\\Users\\Beck\\Downloads\\NipponSteel\\Data\\";
-        foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
-        {
-            obj.Process(imageFileName);
-            var resultImage = obj.imageResult;
-            string fileName = Path.GetFileNameWithoutExtension(imageFileName);
-            resultImage.Save("C:\\Users\\Beck\\Downloads\\NipponSteel\\Result\\" + fileName + ".jpg");
-        }
+        /*        string ImagePath = "C:\\Users\\Beck\\Downloads\\NipponSteel\\Data\\";
+                foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
+                {
+                    obj.Process(imageFileName);
+                    var resultImage = obj.imageResult;
+                    string fileName = Path.GetFileNameWithoutExtension(imageFileName);
+                    resultImage.Save("C:\\Users\\Beck\\Downloads\\NipponSteel\\Result\\" + fileName + ".jpg");
+                }*/
 
-        //resultImage.Save("C:\\Users\\Beck\\Desktop\\results.jpg");
-        //Console.WriteLine("Done");
+        resultImage.Save("C:\\Users\\Beck\\Desktop\\clip_temp_result\\results2533.jpg");
+        Console.WriteLine("Done");
 
         //Semantic Segmentation
         /*        string imagePath = "C:\\Users\\Beck\\Pictures\\Dataset\\RankI\\Rank1_01.JPG";
