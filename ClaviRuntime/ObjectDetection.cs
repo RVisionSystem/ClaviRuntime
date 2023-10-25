@@ -156,20 +156,6 @@ namespace ClaviRuntime
             return dst;
         }
 
-        //Remove padding
-        private static Mat RemovePadding(Mat paddedImage, OpenCvSharp.Size padSize)
-        {
-            int top = padSize.Height/2;
-            int bottom = padSize.Height/2;
-            int left = padSize.Width/2;
-            int right = padSize.Width / 2;
-            Rect roi = new Rect(left, top, paddedImage.Width - left - right, paddedImage.Height - top - bottom);
-            Cv2.Rectangle(paddedImage, new OpenCvSharp.Point(left, top), new OpenCvSharp.Point(paddedImage.Width - left - right, paddedImage.Height - top - bottom),
-                                    new Scalar(0, 0, 0), -1);
-            //Mat dst = new Mat(paddedImage, roi);
-            return paddedImage;
-        }
-
         //Calculate scaling
         private static OpenCvSharp.Size GetScaling(OpenCvSharp.Size originalSize, OpenCvSharp.Size targetSize)
         {
