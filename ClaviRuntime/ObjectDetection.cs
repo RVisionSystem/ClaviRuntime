@@ -21,7 +21,7 @@ namespace ClaviRuntime
         private InferenceSession? SESS;
         public Bitmap? imageResult;
         public List<ObjectDetectionResults>? resultList;
-        private Dictionary<string, string>? LABEL_LIST;
+        private Dictionary<int, string>? LABEL_LIST;
         private Dictionary<string, string>? CUSTOM_META;
         private IReadOnlyDictionary<string, NodeMetadata>? INPUT_META;
         private string? INPUT_NAME;
@@ -40,8 +40,10 @@ namespace ClaviRuntime
             INPUT_NAME = INPUT_META.Keys.ToArray()[0];
             DIMENSION = INPUT_META[INPUT_NAME].Dimensions;
             CUSTOM_META = SESS.ModelMetadata.CustomMetadataMap;
-            //New model customMeta.ToArray()[9].Value;
-            LABEL_LIST = JsonConvert.DeserializeObject<Dictionary<string, string>>(CUSTOM_META.ToArray()[0].Value);
+            //New model CUSTOM_META.ToArray()[9].Value;
+            //LABEL_LIST = JsonConvert.DeserializeObject<Dictionary<int, string>>(CUSTOM_META.ToArray()[9].Value);
+            // WIDTH = DIMENSION_SIZE[3]; HEIGHT = DIMENSION_SIZE[2];
+            REQUIRED_SIZE = new OpenCvSharp.Size(DIMENSION[3], DIMENSION[2]);
 
         }
 
@@ -52,9 +54,6 @@ namespace ClaviRuntime
             //Check if the model is initialized
             try
             {
-                // WIDTH = DIMENSION_SIZE[3]; HEIGHT = DIMENSION_SIZE[2];
-                REQUIRED_SIZE = new OpenCvSharp.Size(DIMENSION[3], DIMENSION[2]);
-
                 var processedImg = Preprocessing(image, REQUIRED_SIZE);
                 var input = new DenseTensor<float>(MatToList(processedImg), new[] { DIMENSION[0], DIMENSION[1], DIMENSION[2], DIMENSION[3] });
                 var inputs = new List<NamedOnnxValue>{ NamedOnnxValue.CreateFromTensor(INPUT_NAME, input) };
@@ -62,17 +61,16 @@ namespace ClaviRuntime
                 var results = SESS.Run(inputs);
                 resultList = Postprocessing(results);
 
-                if (resultList.Count != 0)
+/*                if (resultList.Count != 0)
                 {
                     //Draw result image
                     Bitmap a = BuildResultImage(image, resultList);
                     imageResult = a;
-
-                }
+                }*/
             }
             catch (Exception e)
             {
-                Console.WriteLine("Model not initialized");
+                Console.WriteLine(e.GetBaseException());
                 Console.WriteLine(e.Message);
                 using (var ms = image.ToMemoryStream())
                 {
@@ -213,7 +211,7 @@ namespace ClaviRuntime
             var resultsArray = results.ToArray();
             var pred_value = resultsArray[0].AsEnumerable<float>().ToArray();
             var pred_dim = resultsArray[0].AsTensor<float>().Dimensions.ToArray();
-            var label_value = resultsArray[1].AsEnumerable<Int64>().ToArray();
+            //var label_value = resultsArray[1].AsEnumerable<Int64>().ToArray();
             var candidate = GetCandidate(pred_value, pred_dim, 0.5F);
             if (candidate.Count != 0)
             {
@@ -249,6 +247,7 @@ namespace ClaviRuntime
             }
             return resList;
         }
+
 
         //Convert Mat to Bitmap
         private static Bitmap MatToBitmap(Mat mat)

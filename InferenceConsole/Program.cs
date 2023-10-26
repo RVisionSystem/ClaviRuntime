@@ -70,9 +70,12 @@ class Program
                 }*/
 
         //Object Detection
-        string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg";
-        //string modelPath = "C:\\Users\\Beck\\Downloads\\object detection\\end2end.onnx";
-        string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\object\\model\\Object_Clip.onnx";
+                string imagePath = "C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg";
+                string modelPath = "C:\\Users\\Beck\\Model\\model-test-lib\\object\\model\\epoch1000_sim.onnx";
+
+        //Yolov8
+        //string imagePath = "C:\\Users\\Beck\\source\\repos\\Yolov8.Net\\test\\Yolov8net.test\\Assets\\input.jpg";
+        //string modelPath = "C:\\Users\\Beck\\source\\repos\\Yolov8.Net\\test\\Yolov8net.test\\Assets\\yolov8m.onnx";
 
         var obj = new ObjectDetection();
         obj.InitializeModel(modelPath);
@@ -88,7 +91,7 @@ class Program
                 Console.WriteLine(r.Score);
                 Console.WriteLine(r.Box[0].ToString() + " | " + r.Box[1].ToString() + " | " + r.Box[2].ToString() + " | " + r.Box[3].ToString());
             }
-        }*/
+        }
 
         /*        string ImagePath = "C:\\Users\\Beck\\Downloads\\NipponSteel\\Data\\";
                 foreach (string imageFileName in Directory.GetFiles(ImagePath, "*.jpg"))
@@ -99,7 +102,7 @@ class Program
                     resultImage.Save("C:\\Users\\Beck\\Downloads\\NipponSteel\\Result\\" + fileName + ".jpg");
                 }*/
 
-        resultImage.Save("C:\\Users\\Beck\\Desktop\\clip_temp_result\\results2533.jpg");
+        //resultImage.Save("C:\\Users\\Beck\\Desktop\\clip_temp_result\\results2533.jpg");
         Console.WriteLine("Done");
 
         //Semantic Segmentation

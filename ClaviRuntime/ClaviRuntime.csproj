@@ -9,6 +9,7 @@
     <Authors>Ryowa Development Team</Authors>
     <Company>Ryowa Co., Ltd.</Company>
     <Description>Provides a libraries for inferencing all functionality of CLAVI AI model.</Description>
+    <Title>ClaviRuntime</Title>
   </PropertyGroup>
 
   <ItemGroup>
