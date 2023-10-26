@@ -13,4 +13,8 @@
     <PackageReference Include="Yolov8.Net" Version="1.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Yolov8.Net\src\Yolov8net\Yolov8.Net.csproj" />
+  </ItemGroup>
+
 </Project>

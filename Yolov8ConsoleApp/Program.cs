@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Drawing;
 using System.Text.Json;
 using System.Security.Cryptography.X509Certificates;
@@ -7,7 +6,6 @@ using System.Diagnostics.Metrics;
 using Yolov8Net;
 using SixLabors.ImageSharp.Formats;
 using System.Drawing.Drawing2D;
-//using Newtonsoft.Json.Linq;
 
 class Program
 {
