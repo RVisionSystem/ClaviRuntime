@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenCvSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace ClaviRuntime
 {
@@ -21,10 +24,11 @@ namespace ClaviRuntime
             int newWidth = (int)(inputMat.Width * ratio);
             int newHeight = (int)(inputMat.Height * ratio);
 
-            OpenCvSharp.Size newSize = new OpenCvSharp.Size(newWidth, newHeight);
+            OpenCvSharp.Size newSize = new OpenCvSharp.Size(newWidth, newHeight); //Keep aspect ratio
+            OpenCvSharp.Size No_aspect = new OpenCvSharp.Size(640, 640); //No aspect ratio
 
             //Resize with aspect ratio
-            Mat resizedImage = inputMat.Resize(newSize);
+            Mat resizedImage = inputMat.Resize(No_aspect);
             resizedImage.ConvertTo(resizedImage, MatType.CV_32FC3);
             //Calculate the top left bottom right padding
             OpenCvSharp.Size paddingSize = GetPaddingSize(new OpenCvSharp.Size(target_width, target_width), newSize);
@@ -33,10 +37,8 @@ namespace ClaviRuntime
 
             //Padding
             Mat padded = AddPadding(resizedImage, TB, TB, LR, LR, BorderTypes.Constant, new Scalar(114, 114, 114));
-            Cv2.ImShow("input", padded);
-            Cv2.WaitKey(0);
 
-            return padded;
+            return resizedImage;
         }
 
         public static Mat AddPadding(Mat src, int top, int bottom, int left, int right, BorderTypes borderTypes, Scalar value)
@@ -83,6 +85,18 @@ namespace ClaviRuntime
             OpenCvSharp.Size paddingSize = new OpenCvSharp.Size(LR, TB);
 
             return paddingSize;
+        }
+
+        public static Image ToImageSharpImage(System.Drawing.Bitmap bitmap)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+
+                return Image.Load(memoryStream);
+            }
         }
 
     }

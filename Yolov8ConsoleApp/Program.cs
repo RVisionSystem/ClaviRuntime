@@ -7,6 +7,7 @@ using Yolov8Net;
 using SixLabors.ImageSharp.Formats;
 using System.Drawing.Drawing2D;
 using OpenCvSharp;
+using ClaviRuntime;
 
 class Program
 {
@@ -18,16 +19,21 @@ class Program
 
         // Provide an input image.  Image will be resized to model input if needed.
         //var img = SixLabors.ImageSharp.Image.Load("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg");
-        var img = Cv2.ImRead("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg");
+        Bitmap bitmap = new Bitmap("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2481.jpg");
+        SixLabors.ImageSharp.Image convertBm = ImageManager.ToImageSharpImage(bitmap);
+
+        //var img = Cv2.ImRead("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg");
         
-        var predictions = yolo.Predict(img);
+        var predictions = yolo.Predict(convertBm);
+
 
         // Draw your boxes
-        System.Drawing.Image image = System.Drawing.Image.FromFile("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg");
+        System.Drawing.Image image = System.Drawing.Image.FromFile("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2481.jpg");
         using (Graphics graphics = Graphics.FromImage(image))
         {
             foreach (var pred in predictions)
             {
+                var Result = JsonSerializer.Serialize(pred);
                 var originalImageHeight = image.Height;
                 var originalImageWidth = image.Width;
 
@@ -39,6 +45,7 @@ class Program
                 ////////////////////////////////////////////////////////////////////////////////////////////
                 // *** Note that the output is already scaled to the original image height and width. ***
                 ////////////////////////////////////////////////////////////////////////////////////////////
+                ///
 
                 // Bounding Box Text
                 string text = $"{pred.Label.Name} [{pred.Score}]";
@@ -62,8 +69,9 @@ class Program
 
                 // Draw bounding box on image
                 graphics.DrawRectangle(pen, x, y, width, height);
+                
             }
-            image.Save("C:\\Users\\Beck\\Desktop\\clip_temp_result\\output_d.jpg");
+            image.Save("C:\\Users\\Beck\\Desktop\\clip_temp_result\\output_SixLabor123.jpg");
 
         }
     }
