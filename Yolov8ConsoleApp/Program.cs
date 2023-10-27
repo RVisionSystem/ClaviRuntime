@@ -6,6 +6,7 @@ using System.Diagnostics.Metrics;
 using Yolov8Net;
 using SixLabors.ImageSharp.Formats;
 using System.Drawing.Drawing2D;
+using OpenCvSharp;
 
 class Program
 {
@@ -13,14 +14,16 @@ class Program
     {
         // Create new Yolov8 predictor, specifying the model (in ONNX format)
         // If you are using a custom trained model, you can provide an array of labels. Otherwise, the standard Coco labels are used.
-        using var yolo = YoloV8Predictor.Create("C:\\Users\\Beck\\source\\repos\\Yolov8.Net\\test\\Yolov8net.test\\Assets\\yolov8m.onnx");
+        var yolo = YoloV8Predictor.Create("C:\\Users\\Beck\\Model\\model-test-lib\\object\\model\\epoch1000.onnx");
 
         // Provide an input image.  Image will be resized to model input if needed.
-        using var img = SixLabors.ImageSharp.Image.Load("C:\\Users\\Beck\\source\\repos\\Yolov8.Net\\test\\Yolov8net.test\\Assets\\input.jpg");
+        //var img = SixLabors.ImageSharp.Image.Load("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg");
+        var img = Cv2.ImRead("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg");
+        
         var predictions = yolo.Predict(img);
 
         // Draw your boxes
-        System.Drawing.Image image = System.Drawing.Image.FromFile("C:\\Users\\Beck\\source\\repos\\Yolov8.Net\\test\\Yolov8net.test\\Assets\\input.jpg");
+        System.Drawing.Image image = System.Drawing.Image.FromFile("C:\\Users\\Beck\\Model\\model-test-lib\\object\\images\\clip\\IMG_2533.jpg");
         using (Graphics graphics = Graphics.FromImage(image))
         {
             foreach (var pred in predictions)
@@ -60,7 +63,7 @@ class Program
                 // Draw bounding box on image
                 graphics.DrawRectangle(pen, x, y, width, height);
             }
-            image.Save("C:\\Users\\Beck\\Desktop\\clip_temp_result\\output.jpg");
+            image.Save("C:\\Users\\Beck\\Desktop\\clip_temp_result\\output_d.jpg");
 
         }
     }
